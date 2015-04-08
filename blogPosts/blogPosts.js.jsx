@@ -1,12 +1,30 @@
 var BlogPostsApp = React.createClass({
   getInitialState: function() {
     return {
-      posts: []
+      posts: [],
+      attrs: {
+        url: 'http://smashingmagazine.com/feed',
+        posts: 2
+      }
     };
   },
   componentDidMount: function() {
-    var FEED_URL = this.props.url;
-    var numberOfPosts = this.props.numberOfPosts;
+    var parentNode = this.getDOMNode().parentNode;
+    var attrs = this.state.attrs;
+    [].slice.call(parentNode.attributes).forEach(function (attr) {
+        if (attr.name.match(/^data-/)) {
+            var realName = attr.name.substr(5);
+            if ('value' !== realName) {
+              if ('class' == realName) {
+                  realName = 'className';
+              }
+              attrs[realName] = attr.value;
+            }
+            parentNode.removeAttribute(attr.name);
+        }
+    }, this);
+    var FEED_URL = this.state.attrs.url;
+    var numberOfPosts = this.state.attrs.posts;
     var keyId = 0;
     var prettyDate = function(pubDate) {
       var newDate = new Date(pubDate);
@@ -58,6 +76,6 @@ var BlogPostsApp = React.createClass({
 });
 
 React.render(
-  <BlogPostsApp url='http://css-tricks.com/feed' numberOfPosts='5' />,
+  <BlogPostsApp />,
   document.getElementById('blogPosts')
 );
